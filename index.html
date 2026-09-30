@@ -69,10 +69,17 @@
 
         <!-- Main Map Area -->
         <main class="map-area">
+            
+            <!-- Search Bar -->
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Search monuments or cities...">
+                <button id="search-clear" aria-label="Clear search">&times;</button>
+            </div>
+
             <div id="map"></div>
         </main>
 
-        <!-- Floating Card Panel (Updated Layout) -->
+        <!-- Floating Card Panel -->
         <aside class="right-panel" id="info-panel">
             <button class="close-btn" id="close-panel">&times;</button>
             
@@ -81,27 +88,22 @@
             </div>
             
             <div class="panel-content">
-                <!-- Title & Location first -->
                 <h2 id="panel-title">Monument Name</h2>
                 <h4 id="panel-location">City, Country</h4>
                 
-                <!-- Tags below title (like the screenshot) -->
                 <div class="panel-tags">
                     <span class="panel-tag dynasty" id="panel-dynasty">Dynasty</span>
                     <span class="panel-tag" id="panel-year">Year</span>
                 </div>
                 
-                <!-- Description -->
                 <p id="panel-desc">Description goes here...</p>
                 
-                <!-- Buttons -->
                 <div class="panel-links">
                     <a href="#" target="_blank" id="panel-gmaps" class="link-btn gmaps">Get Directions on Google Maps ↗</a>
                     <a href="#" target="_blank" id="panel-wiki" class="link-btn wiki">Read on Wikipedia ↗</a>
                 </div>
             </div>
 
-            <!-- Next/Prev Controls at the bottom of the card -->
             <div class="popup-controls">
                 <button id="prev-btn" class="nav-btn">← Prev</button>
                 <span id="counter" class="counter">1 / 5</span>
