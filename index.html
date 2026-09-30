@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Heritage Explorer</title>
+    <!-- Leaflet CSS for Interactive Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- Left Sidebar Wrapper -->
+        <div class="sidebar-wrapper" id="sidebar-wrapper">
+            <aside class="sidebar">
+                <header>
+                    <h1>Heritage Explorer</h1>
+                    <p>Filter through time and space to discover historical monuments.</p>
+                </header>
+
+                <div class="filters">
+                    <div class="filter-group">
+                        <label>Country</label>
+                        <select id="filter-country">
+                            <option value="all">All Countries</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>State / Region</label>
+                        <select id="filter-state" disabled>
+                            <option value="all">All States</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>City</label>
+                        <select id="filter-city" disabled>
+                            <option value="all">All Cities</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Dynasty / Empire</label>
+                        <select id="filter-dynasty">
+                            <option value="all">All Dynasties</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Time Period (CE)</label>
+                        <div class="year-range">
+                            <input type="number" id="filter-year-start" placeholder="Start (1000)">
+                            <span>to</span>
+                            <input type="number" id="filter-year-end" placeholder="End (1700)">
+                        </div>
+                    </div>
+
+                    <button id="apply-filters" class="btn-primary">Apply Filters & Zoom</button>
+                    <button id="reset-filters" class="btn-secondary">Reset Filters</button>
+                </div>
+            </aside>
+            
+            <button class="toggle-sidebar-btn" id="toggle-sidebar">❮</button>
+        </div>
+
+        <!-- Main Map Area -->
+        <main class="map-area">
+            <div id="map"></div>
+        </main>
+
+        <!-- Floating Card Panel (Updated Layout) -->
+        <aside class="right-panel" id="info-panel">
+            <button class="close-btn" id="close-panel">&times;</button>
+            
+            <div class="panel-image-container" id="image-container">
+                <img id="panel-image" src="" alt="Monument">
+            </div>
+            
+            <div class="panel-content">
+                <!-- Title & Location first -->
+                <h2 id="panel-title">Monument Name</h2>
+                <h4 id="panel-location">City, Country</h4>
+                
+                <!-- Tags below title (like the screenshot) -->
+                <div class="panel-tags">
+                    <span class="panel-tag dynasty" id="panel-dynasty">Dynasty</span>
+                    <span class="panel-tag" id="panel-year">Year</span>
+                </div>
+                
+                <!-- Description -->
+                <p id="panel-desc">Description goes here...</p>
+                
+                <!-- Buttons -->
+                <div class="panel-links">
+                    <a href="#" target="_blank" id="panel-gmaps" class="link-btn gmaps">Get Directions on Google Maps ↗</a>
+                    <a href="#" target="_blank" id="panel-wiki" class="link-btn wiki">Read on Wikipedia ↗</a>
+                </div>
+            </div>
+
+            <!-- Next/Prev Controls at the bottom of the card -->
+            <div class="popup-controls">
+                <button id="prev-btn" class="nav-btn">← Prev</button>
+                <span id="counter" class="counter">1 / 5</span>
+                <button id="next-btn" class="nav-btn">Next →</button>
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,203 @@
+:root {
+    --sidebar-bg: #1a1815;
+    --panel-bg: #fdfcf9;
+    --text-light: #f4efe8;
+    --text-dark: #2c2925;
+    --accent: #d35400;
+    --accent-hover: #b34700;
+    --border-color: rgba(255, 255, 255, 0.08);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Lora', serif;
+    color: var(--text-dark);
+    height: 100vh;
+    overflow: hidden;
+    background-color: #a4b8c4; 
+}
+
+.app-container {
+    display: flex; height: 100vh; width: 100vw; position: relative; overflow: hidden;
+}
+
+/* Sidebar Wrapper & Animation */
+.sidebar-wrapper {
+    position: absolute; top: 0; left: 0; height: 100vh; z-index: 1000;
+    display: flex; transform: translateX(0);
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.3, 1);
+}
+.sidebar-wrapper.closed { transform: translateX(-310px); }
+
+/* Left Sidebar */
+.sidebar {
+    width: 310px; height: 100%;
+    background-color: var(--sidebar-bg);
+    color: var(--text-light);
+    padding: 1.5rem; display: flex; flex-direction: column;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.6);
+    overflow-y: auto;
+}
+
+.toggle-sidebar-btn {
+    margin-top: 15px; height: 45px; width: 24px;
+    background-color: var(--sidebar-bg); color: #888;
+    border: none; border-radius: 0 6px 6px 0; cursor: pointer;
+    box-shadow: 4px 0 10px rgba(0,0,0,0.4);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; transition: all 0.3s ease;
+}
+.toggle-sidebar-btn:hover { color: #fff; background-color: #222; }
+
+.sidebar header h1 { font-family: 'Cinzel', serif; font-size: 1.7rem; color: var(--accent); margin-bottom: 0.2rem; }
+.sidebar header p { font-size: 0.8rem; opacity: 0.6; margin-bottom: 1.5rem; line-height: 1.4; }
+
+.filters { display: flex; flex-direction: column; gap: 0.9rem; }
+.filter-group label { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.3rem; color: #999; }
+
+select, input[type="number"] {
+    width: 100%; padding: 0.6rem;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--border-color);
+    color: var(--text-light); border-radius: 4px; font-family: 'Lora', serif; outline: none; transition: border 0.3s;
+}
+select:focus, input[type="number"]:focus { border-color: #666; }
+select:disabled { opacity: 0.3; cursor: not-allowed; }
+select option { background: #222; color: var(--text-light); }
+
+.year-range { display: flex; align-items: center; gap: 0.5rem; }
+.year-range span { color: #666; font-size: 0.8rem; }
+
+button {
+    padding: 0.7rem; border: none; border-radius: 4px;
+    font-family: 'Cinzel', serif; font-weight: 700; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 1, 0.3, 1);
+}
+.btn-primary { background-color: var(--accent); color: #fff; margin-top: 0.5rem; letter-spacing: 1px;}
+.btn-primary:hover { background-color: var(--accent-hover); transform: translateY(-1px); }
+.btn-secondary { background-color: transparent; border: 1px solid var(--border-color); color: #aaa; font-size: 0.8rem; }
+.btn-secondary:hover { background-color: rgba(255,255,255,0.05); color: #fff; }
+
+/* Map Area */
+.map-area { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; }
+#map { width: 100%; height: 100%; }
+
+/* Map Pins */
+.custom-pin {
+    background: var(--accent); border: 2px solid #fff; border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5); transition: all 0.3s cubic-bezier(0.25, 1, 0.3, 1);
+}
+.custom-pin:hover { transform: scale(1.3); background: #000; z-index: 800 !important; }
+.custom-pin.active-pin {
+    background: #fff; border: 3px solid var(--accent); transform: scale(1.6);
+    box-shadow: 0 0 15px rgba(211, 84, 0, 0.6); z-index: 1000 !important;
+}
+
+/* ========================================================
+   FLOATING CARD STYLES (FIXED HEIGHT)
+   ======================================================== */
+
+.right-panel {
+    position: absolute; 
+    top: 20px; 
+    right: 20px; 
+    width: 360px; 
+    height: 580px; /* <--- FIXED HEIGHT SO IT NEVER CHANGES SIZE */
+    max-height: calc(100vh - 40px); /* Prevents overflow on very small laptops */
+    background-color: var(--panel-bg); 
+    box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+    border-radius: 16px; 
+    z-index: 2000; 
+    transform: translateX(120%); 
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.3, 1);
+    display: flex; 
+    flex-direction: column;
+    overflow: hidden; 
+}
+.right-panel.open { transform: translateX(0); }
+
+.close-btn {
+    position: absolute; top: 12px; right: 12px;
+    background: rgba(0,0,0,0.6); border: none; font-size: 1.2rem;
+    color: #fff; border-radius: 50%; width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 10; transition: background 0.3s; backdrop-filter: blur(4px);
+}
+.close-btn:hover { background: var(--accent); }
+
+/* Image Container */
+.panel-image-container {
+    width: 100%; height: 200px; flex-shrink: 0;
+    position: relative; background: #e5e0d8;
+}
+.panel-image-container.loading::before {
+    content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(90deg, #e5e0d8 0px, #f4eee6 50%, #e5e0d8 100%);
+    background-size: 200% 100%; animation: pulse 1.5s infinite linear;
+}
+@keyframes pulse { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+.panel-image-container img {
+    width: 100%; height: 100%; object-fit: cover; object-position: center;
+    opacity: 0; transition: opacity 0.5s ease-in-out;
+}
+.panel-image-container img.loaded { opacity: 1; }
+
+.panel-content { padding: 1.5rem; overflow-y: auto; flex: 1; }
+
+#panel-title { font-family: 'Cinzel', serif; font-size: 1.8rem; color: var(--text-dark); margin-bottom: 0.1rem; line-height: 1.2; }
+#panel-location { font-size: 0.9rem; color: #888; font-style: italic; margin-bottom: 1rem; }
+
+/* Tag Styling */
+.panel-tags { display: flex; gap: 8px; margin-bottom: 1.2rem; flex-wrap: wrap; }
+.panel-tag {
+    display: inline-block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;
+    padding: 5px 10px; border-radius: 20px; font-weight: 700;
+}
+.panel-tag.dynasty { background: var(--accent); color: #fff; }
+.panel-tag#panel-year { background: rgba(0,0,0,0.08); color: #555; }
+
+#panel-desc { font-size: 0.95rem; line-height: 1.5; color: #444; margin-bottom: 1.5rem; }
+
+.panel-links { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 0.5rem; }
+.link-btn {
+    display: block; text-align: center; padding: 0.7rem; text-decoration: none;
+    border-radius: 8px; font-family: 'Cinzel', serif; font-weight: 600; font-size: 0.85rem; letter-spacing: 0.5px; transition: all 0.3s;
+}
+.link-btn.gmaps { background: var(--text-dark); color: #fff; }
+.link-btn.gmaps:hover { background: #000; transform: translateY(-1px); }
+.link-btn.wiki { background: transparent; border: 1px solid #ddd; color: #555; }
+.link-btn.wiki:hover { background: #f0f0f0; color: #111; }
+
+/* Navigation Buttons */
+.popup-controls {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1rem 1.5rem; background: #f7f6f2; border-top: 1px solid #eaeaea; flex-shrink: 0;
+}
+.nav-btn { background: none; border: none; font-family: 'Cinzel', serif; font-weight: 700; color: #555; cursor: pointer; font-size: 0.9rem; transition: color 0.3s; }
+.nav-btn:hover { color: var(--accent); }
+.nav-btn:disabled { color: #ccc; cursor: not-allowed; }
+.counter { font-size: 0.8rem; color: #999; letter-spacing: 1px; }
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .sidebar { width: 280px; padding: 1.2rem; }
+    .sidebar-wrapper.closed { transform: translateX(-280px); }
+    
+    .right-panel {
+        width: auto;
+        left: 15px; 
+        right: 15px;
+        top: auto; 
+        bottom: 15px; 
+        height: 65vh; /* <--- FIXED HEIGHT FOR MOBILE */
+        max-height: calc(100vh - 100px); 
+        transform: translateY(150%);
+        border-radius: 16px; 
+    }
+    .right-panel.open { transform: translateY(0); }
+    
+    .panel-image-container { height: 160px; }
+    .panel-content { padding: 1.2rem; }
+    
+    .leaflet-control-zoom { margin-bottom: calc(65vh + 30px) !important; }
+}
