@@ -896,9 +896,12 @@ let currentMonumentIndex = 0;
 let activeMarkerId = null;
 
 // Search DOM Elements
+const searchWrapper = document.getElementById('search-wrapper');
+const searchIconBtn = document.getElementById('search-icon-btn');
 const searchInput = document.getElementById('search-input');
 const searchClear = document.getElementById('search-clear');
 
+// Find oldest year per dynasty for sorting
 const dynastyStartYears = {};
 monuments.forEach(m => {
     if (!(m.dynasty in dynastyStartYears) || m.year < dynastyStartYears[m.dynasty]) {
@@ -906,14 +909,28 @@ monuments.forEach(m => {
     }
 });
 
-const map = L.map('map', { zoomControl: false }).setView([22.5, 78.5], 5);
+// Initialize Leaflet Map
+const map = L.map('map', { zoomControl: false, maxZoom: 18 }).setView([22.5, 78.5], 5);
 L.control.zoom({ position: 'bottomright' }).addTo(map);
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Tiles &copy; Esri'
 }).addTo(map);
 
-let markersLayer = L.featureGroup().addTo(map);
+// NEW: Initialize MarkerCluster Group instead of standard FeatureGroup
+const markersCluster = L.markerClusterGroup({
+    showCoverageOnHover: false,
+    maxClusterRadius: 40,
+    iconCreateFunction: function(cluster) {
+        return L.divIcon({
+            html: `<div><span>${cluster.getChildCount()}</span></div>`,
+            className: 'marker-cluster-custom',
+            iconSize: L.point(40, 40)
+        });
+    }
+});
+map.addLayer(markersCluster);
 
+// Standard DOM Elements
 const selectCountry = document.getElementById('filter-country');
 const selectState = document.getElementById('filter-state');
 const selectCity = document.getElementById('filter-city');
@@ -931,11 +948,28 @@ const toggleSidebarBtn = document.getElementById('toggle-sidebar');
 const panelImg = document.getElementById('panel-image');
 const imgContainer = document.getElementById('image-container');
 
+// Sidebar Toggle Logic
 toggleSidebarBtn.addEventListener('click', () => {
     sidebarWrapper.classList.toggle('closed');
     toggleSidebarBtn.textContent = sidebarWrapper.classList.contains('closed') ? '❯' : '❮';
 });
 
+// Search Bar Expand Logic
+searchIconBtn.addEventListener('click', () => {
+    searchWrapper.classList.toggle('expanded');
+    if(searchWrapper.classList.contains('expanded')) {
+        searchInput.focus();
+    } else {
+        // If closing, clear the search
+        if(searchInput.value !== '') {
+            searchInput.value = '';
+            searchClear.style.display = 'none';
+            applyFilters();
+        }
+    }
+});
+
+// Dropdowns
 function populateSelect(element, dataArray, isDynasty = false) {
     element.innerHTML = '<option value="all">All</option>';
     if (isDynasty) {
@@ -990,36 +1024,34 @@ function initDropdowns() {
 }
 
 function updateMap(data) {
-    markersLayer.clearLayers(); 
+    markersCluster.clearLayers(); 
     if (data.length === 0) return;
 
+    let newMarkers = [];
+
     data.forEach(site => {
-        // Enlarge SVG Pin Icon
         const customIcon = L.divIcon({
-            className: `custom-pin-container ${site.id === activeMarkerId ? 'active-pin' : ''}`,
-            html: `<svg class="map-pin-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                   </svg>`,
-            iconSize: [36, 36],
-            iconAnchor: [18, 36] // Bottom center tip of the pin
+            className: `custom-pin ${site.id === activeMarkerId ? 'active-pin' : ''}`
         });
 
         const marker = L.marker([site.lat, site.lng], { icon: customIcon, monumentId: site.id })
-            .bindTooltip(`<b>${site.name}</b>`, { direction: 'top', offset: [0, -30] });
+            .bindTooltip(`<b>${site.name}</b>`, { direction: 'top', offset: [0, -10] });
 
         marker.on('click', () => {
             activeMarkerId = site.id;
             updateMarkerHighlights();
             openPanel(site);
         });
-        markersLayer.addLayer(marker);
+        
+        newMarkers.push(marker);
     });
 
-    map.flyToBounds(markersLayer.getBounds(), { padding: [50, 50], maxZoom: 13, duration: 1.5 });
+    markersCluster.addLayers(newMarkers);
+    map.flyToBounds(markersCluster.getBounds(), { padding: [50, 50], maxZoom: 13, duration: 1.5 });
 }
 
 function updateMarkerHighlights() {
-    markersLayer.eachLayer(marker => {
+    markersCluster.eachLayer(marker => {
         const iconElem = marker.getElement();
         if (iconElem) {
             if (marker.options.monumentId === activeMarkerId) {
@@ -1072,6 +1104,7 @@ searchClear.addEventListener('click', () => {
     searchInput.value = '';
     searchClear.style.display = 'none';
     applyFilters();
+    searchInput.focus();
 });
 
 function resetFilters() {
@@ -1081,6 +1114,7 @@ function resetFilters() {
     selectDynasty.value = 'all';
     inputYearStart.value = ''; inputYearEnd.value = '';
     searchInput.value = ''; searchClear.style.display = 'none';
+    searchWrapper.classList.remove('expanded');
     
     updateDynastyOptions(monuments);
     applyFilters();
@@ -1092,10 +1126,17 @@ function openPanel(site) {
     updateMarkerHighlights();
     
     populatePanelData(site);
+    
+    // Shift search bar left so it doesn't overlap the panel
+    searchWrapper.classList.add('shifted');
     infoPanel.classList.add('open');
     
     const zoomOffset = window.innerWidth <= 768 ? -0.05 : 0; 
-    map.flyTo([site.lat + zoomOffset, site.lng], 14, { duration: 1.2 });
+    
+    // Smooth zoom to marker (zoom in slightly so it pops out of a cluster if grouped)
+    markersCluster.zoomToShowLayer(markersCluster.getLayers().find(l => l.options.monumentId === site.id), () => {
+        map.flyTo([site.lat + zoomOffset, site.lng], 15, { duration: 1.2 });
+    });
 }
 
 async function fetchWikiImage(wikiUrl) {
@@ -1135,7 +1176,6 @@ function populatePanelData(site) {
     document.getElementById('panel-location').textContent = `${site.city}, ${site.country}`;
     document.getElementById('panel-desc').textContent = site.desc;
     
-    // Uses the custom gmaps_link if you add one to your DB, otherwise defaults to coords!
     document.getElementById('panel-gmaps').href = site.gmaps_link || `https://www.google.com/maps/search/?api=1&query=${site.lat},${site.lng}`;
     document.getElementById('panel-wiki').href = site.wiki;
 
@@ -1164,6 +1204,8 @@ function showNextMonument() {
 
 function closePanel() {
     infoPanel.classList.remove('open');
+    // Move search bar back to original position
+    searchWrapper.classList.remove('shifted');
     activeMarkerId = null;
     updateMarkerHighlights();
 }

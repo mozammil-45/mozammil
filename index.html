@@ -4,8 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Global Heritage Explorer</title>
-    <!-- Leaflet CSS for Interactive Map -->
+    
+    <!-- Leaflet & MarkerCluster CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 </head>
@@ -24,32 +28,20 @@
                 <div class="filters">
                     <div class="filter-group">
                         <label>Country</label>
-                        <select id="filter-country">
-                            <option value="all">All Countries</option>
-                        </select>
+                        <select id="filter-country"><option value="all">All Countries</option></select>
                     </div>
-
                     <div class="filter-group">
                         <label>State / Region</label>
-                        <select id="filter-state" disabled>
-                            <option value="all">All States</option>
-                        </select>
+                        <select id="filter-state" disabled><option value="all">All States</option></select>
                     </div>
-
                     <div class="filter-group">
                         <label>City</label>
-                        <select id="filter-city" disabled>
-                            <option value="all">All Cities</option>
-                        </select>
+                        <select id="filter-city" disabled><option value="all">All Cities</option></select>
                     </div>
-
                     <div class="filter-group">
                         <label>Dynasty / Empire</label>
-                        <select id="filter-dynasty">
-                            <option value="all">All Dynasties</option>
-                        </select>
+                        <select id="filter-dynasty"><option value="all">All Dynasties</option></select>
                     </div>
-
                     <div class="filter-group">
                         <label>Time Period (CE)</label>
                         <div class="year-range">
@@ -63,47 +55,43 @@
                     <button id="reset-filters" class="btn-secondary">Reset Filters</button>
                 </div>
             </aside>
-            
             <button class="toggle-sidebar-btn" id="toggle-sidebar">❮</button>
         </div>
 
         <!-- Main Map Area -->
         <main class="map-area">
             
-            <!-- Search Bar -->
-            <div class="search-container">
-                <input type="text" id="search-input" placeholder="Search monuments or cities...">
+            <!-- NEW SMART SEARCH BAR (Icon only by default) -->
+            <div class="search-wrapper" id="search-wrapper">
+                <button id="search-icon-btn" aria-label="Open Search">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </button>
+                <input type="text" id="search-input" placeholder="Search monuments...">
                 <button id="search-clear" aria-label="Clear search">&times;</button>
             </div>
 
             <div id="map"></div>
         </main>
 
-        <!-- Floating Card Panel -->
+        <!-- Right Info Panel -->
         <aside class="right-panel" id="info-panel">
             <button class="close-btn" id="close-panel">&times;</button>
-            
             <div class="panel-image-container" id="image-container">
                 <img id="panel-image" src="" alt="Monument">
             </div>
-            
             <div class="panel-content">
                 <h2 id="panel-title">Monument Name</h2>
                 <h4 id="panel-location">City, Country</h4>
-                
                 <div class="panel-tags">
                     <span class="panel-tag dynasty" id="panel-dynasty">Dynasty</span>
                     <span class="panel-tag" id="panel-year">Year</span>
                 </div>
-                
                 <p id="panel-desc">Description goes here...</p>
-                
                 <div class="panel-links">
                     <a href="#" target="_blank" id="panel-gmaps" class="link-btn gmaps">Get Directions on Google Maps ↗</a>
                     <a href="#" target="_blank" id="panel-wiki" class="link-btn wiki">Read on Wikipedia ↗</a>
                 </div>
             </div>
-
             <div class="popup-controls">
                 <button id="prev-btn" class="nav-btn">← Prev</button>
                 <span id="counter" class="counter">1 / 5</span>
@@ -113,8 +101,9 @@
 
     </div>
 
-    <!-- Leaflet JS -->
+    <!-- Leaflet & MarkerCluster JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
