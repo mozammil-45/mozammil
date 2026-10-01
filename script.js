@@ -1184,22 +1184,41 @@ function populatePanelData(site) {
 
 function updateNavButtons() {
     document.getElementById("counter").innerText = `${currentMonumentIndex + 1} / ${currentFilteredData.length}`;
-    btnPrev.disabled = currentMonumentIndex === 0;
-    btnNext.disabled = currentMonumentIndex === currentFilteredData.length - 1;
+    // Buttons are no longer disabled at the ends of the list
+    btnPrev.disabled = false;
+    btnNext.disabled = false;
+    
+    // Disable both only if there is exactly 1 or 0 items in the filtered list
+    if (currentFilteredData.length <= 1) {
+        btnPrev.disabled = true;
+        btnNext.disabled = true;
+    }
 }
 
 function showPrevMonument() {
-    if (currentMonumentIndex > 0) {
+    if (currentFilteredData.length === 0) return;
+    
+    // If at the first item, loop back to the last item
+    if (currentMonumentIndex === 0) {
+        currentMonumentIndex = currentFilteredData.length - 1;
+    } else {
         currentMonumentIndex--;
-        openPanel(currentFilteredData[currentMonumentIndex]);
     }
+    
+    openPanel(currentFilteredData[currentMonumentIndex]);
 }
 
 function showNextMonument() {
-    if (currentMonumentIndex < currentFilteredData.length - 1) {
+    if (currentFilteredData.length === 0) return;
+    
+    // If at the last item, loop back to the first item
+    if (currentMonumentIndex === currentFilteredData.length - 1) {
+        currentMonumentIndex = 0;
+    } else {
         currentMonumentIndex++;
-        openPanel(currentFilteredData[currentMonumentIndex]);
     }
+    
+    openPanel(currentFilteredData[currentMonumentIndex]);
 }
 
 function closePanel() {

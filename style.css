@@ -188,7 +188,7 @@ button { padding: 0.7rem; border: none; border-radius: 4px; font-family: 'Cinzel
 @media (max-width: 768px) {
     .search-wrapper { top: 15px; right: 15px; }
     .search-wrapper.expanded { width: calc(100vw - 30px); }
-    .search-wrapper.shifted { right: 15px; } /* Don't shift on mobile since panel is at bottom */
+    .search-wrapper.shifted { right: 15px; } 
     
     .toggle-sidebar-btn { z-index: 1001; }
     .sidebar { width: 280px; padding: 1.2rem; }
@@ -196,10 +196,13 @@ button { padding: 0.7rem; border: none; border-radius: 4px; font-family: 'Cinzel
     
     .right-panel {
         width: auto; left: 15px; right: 15px; top: auto; bottom: 15px; 
-        height: 65vh; max-height: calc(100vh - 100px); transform: translateY(150%); border-radius: 16px; 
+        height: 75svh; /* Uses svh to account for mobile browser UI bars */
+        max-height: calc(100svh - 100px); 
+        transform: translateY(150%); border-radius: 16px; 
     }
     .right-panel.open { transform: translateY(0); }
     .panel-image-container { height: 160px; }
     .panel-content { padding: 1.2rem; }
-    .leaflet-control-zoom { margin-bottom: calc(65vh + 30px) !important; }
+    .popup-controls { padding: 0.8rem 1.2rem; } /* Tighter padding for mobile */
+    .leaflet-control-zoom { margin-bottom: calc(75svh + 20px) !important; }
 }
