@@ -1,8 +1,8 @@
 // Copy this and use it as the start of your monuments array.
 const monuments = [
     // DELHI[cite: 4]
-    {id:1,name:"Lal Kot",country:"India",state:"Delhi",city:"New Delhi",dynasty:"Tomar Dynasty",year:1060,lat:28.5255,lng:77.1854,desc:"The first documented fortified city of Delhi.",wiki:"https://en.wikipedia.org/wiki/Lal_Kot"},
-    {id:2,name:"Anang Tal",country:"India",state:"Delhi",city:"New Delhi",dynasty:"Tomar Dynasty",year:1060,lat:28.5241,lng:77.1850,desc:"An ancient reservoir built by the Tomar king Anangpal II.",wiki:"https://en.wikipedia.org/wiki/Anangpur_Dam"},
+    {id: 1, name: "Lal Kot", country: "India", state: "Delhi", city: "New Delhi", dynasty: "Tomar Dynasty", year: 1060, lat: 28.5255, lng: 77.1854, desc: "The first documented fortified city of Delhi.", wiki: "https://en.wikipedia.org/wiki/Lal_Kot",gmaps_link: "https://maps.app.goo.gl/TE8bVaxt422Uur348"},    
+    {id:2,name:"Anang Tal",country:"India",state:"Delhi",city:"New Delhi",dynasty:"Tomar Dynasty",year:1060,lat:28.5241,lng:77.1850,desc:"An ancient reservoir built by the Tomar king Anangpal II.",wiki:"https://en.wikipedia.org/wiki/Anangpur_Dam", gmaps_link: "https://maps.app.goo.gl/1dTnY5qez4RJxd3K7" },
     {id:3,name:"Suraj Kund",country:"India",state:"Delhi",city:"Faridabad",dynasty:"Tomar Dynasty",year:1060,lat:28.4870,lng:77.2797,desc:"An ancient reservoir in the backdrop of the Aravalli hills.",wiki:"https://en.wikipedia.org/wiki/Surajkund"},
     {id:4,name:"Qila Rai Pithora",country:"India",state:"Delhi",city:"New Delhi",dynasty:"Chauhan Dynasty",year:1150,lat:28.5238,lng:77.1883,desc:"A fortified city built by Prithviraj Chauhan.",wiki:"https://en.wikipedia.org/wiki/Qila_Rai_Pithora"},
     {id:5,name:"Rai Pithora's Fortifications",country:"India",state:"Delhi",city:"New Delhi",dynasty:"Chauhan Dynasty",year:1150,lat:28.5230,lng:77.1900,desc:"The expansive defensive walls of ancient Qila Rai Pithora.",wiki:"https://en.wikipedia.org/wiki/Qila_Rai_Pithora"},
@@ -1010,32 +1010,47 @@ function initDropdowns() {
         }
     });
 
+// --- UPDATED STATE DROPDOWN (Delhi NCR Fix) ---
     selectState.addEventListener('change', () => {
         const state = selectState.value;
         if (state === 'all') {
             selectCity.innerHTML = '<option value="all">All Cities</option>'; selectCity.disabled = true;
             updateDynastyOptions(monuments.filter(m => m.country === selectCountry.value));
         } else {
-            const stateData = monuments.filter(m => m.state === state && m.country === selectCountry.value);
+            let stateData;
+            // If "Delhi NCR" is selected, grab both Delhi and Delhi NCR monuments
+            if (state === 'Delhi NCR') {
+                stateData = monuments.filter(m => (m.state === 'Delhi NCR' || m.state === 'Delhi') && m.country === selectCountry.value);
+            } else {
+                stateData = monuments.filter(m => m.state === state && m.country === selectCountry.value);
+            }
             populateSelect(selectCity, [...new Set(stateData.map(m => m.city))]); selectCity.disabled = false;
             updateDynastyOptions(stateData);
         }
     });
-}
+} // <-- End of initDropdowns()    });
 
+// --- UPDATED MAP FUNCTION (Numbered Pins) ---
 function updateMap(data) {
     markersCluster.clearLayers(); 
     if (data.length === 0) return;
 
     let newMarkers = [];
 
-    data.forEach(site => {
+    // Notice we grab the (site, index) so we can number them 1 to X
+    data.forEach((site, index) => {
         const customIcon = L.divIcon({
-            className: `custom-pin ${site.id === activeMarkerId ? 'active-pin' : ''}`
+            className: `custom-pin-container ${site.id === activeMarkerId ? 'active-pin' : ''}`,
+            html: `<svg class="map-pin-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+                   </svg>
+                   <span class="pin-number">${index + 1}</span>`,
+            iconSize: [36, 36],
+            iconAnchor: [18, 36] 
         });
 
         const marker = L.marker([site.lat, site.lng], { icon: customIcon, monumentId: site.id })
-            .bindTooltip(`<b>${site.name}</b>`, { direction: 'top', offset: [0, -10] });
+            .bindTooltip(`<b>${index + 1}. ${site.name}</b>`, { direction: 'top', offset: [0, -30] });
 
         marker.on('click', () => {
             activeMarkerId = site.id;
@@ -1050,6 +1065,8 @@ function updateMap(data) {
     map.flyToBounds(markersCluster.getBounds(), { padding: [50, 50], maxZoom: 13, duration: 1.5 });
 }
 
+// --- UPDATED FILTER FUNCTION (Delhi NCR Fix) ---
+// (Ensure you also replace the rest of the file logic down to applyFilters)
 function updateMarkerHighlights() {
     markersCluster.eachLayer(marker => {
         const iconElem = marker.getElement();
@@ -1068,7 +1085,16 @@ function applyFilters() {
     
     let filtered = monuments;
     if (selectCountry.value !== 'all') filtered = filtered.filter(m => m.country === selectCountry.value);
-    if (selectState.value !== 'all') filtered = filtered.filter(m => m.state === selectState.value);
+    
+    // Delhi NCR smart filter logic
+    if (selectState.value !== 'all') {
+        if (selectState.value === 'Delhi NCR') {
+            filtered = filtered.filter(m => m.state === 'Delhi NCR' || m.state === 'Delhi');
+        } else {
+            filtered = filtered.filter(m => m.state === selectState.value);
+        }
+    }
+    
     if (selectCity.value !== 'all') filtered = filtered.filter(m => m.city === selectCity.value);
     if (selectDynasty.value !== 'all') filtered = filtered.filter(m => m.dynasty === selectDynasty.value);
 
@@ -1082,7 +1108,8 @@ function applyFilters() {
     if (query) {
         filtered = filtered.filter(m => 
             m.name.toLowerCase().includes(query) || 
-            m.city.toLowerCase().includes(query)
+            m.city.toLowerCase().includes(query) ||
+            m.state.toLowerCase().includes(query)
         );
     }
 
@@ -1127,13 +1154,20 @@ function openPanel(site) {
     
     populatePanelData(site);
     
-    // Shift search bar left so it doesn't overlap the panel
+    // Shift search bar left so it doesn't overlap the panel (desktop only)
     searchWrapper.classList.add('shifted');
     infoPanel.classList.add('open');
     
-    const zoomOffset = window.innerWidth <= 768 ? -0.05 : 0; 
+    // Auto-close the left sidebar on mobile screens when a pin is clicked
+    if (window.innerWidth <= 768) {
+        sidebarWrapper.classList.add('closed');
+        toggleSidebarBtn.textContent = '❯';
+    }
     
-    // Smooth zoom to marker (zoom in slightly so it pops out of a cluster if grouped)
+    // On mobile, the modal covers the center. We adjust the zoom offset 
+    // so the map pans the pin slightly upwards, keeping it visible above the modal.
+    const zoomOffset = window.innerWidth <= 768 ? -0.008 : 0; 
+    
     markersCluster.zoomToShowLayer(markersCluster.getLayers().find(l => l.options.monumentId === site.id), () => {
         map.flyTo([site.lat + zoomOffset, site.lng], 15, { duration: 1.2 });
     });
